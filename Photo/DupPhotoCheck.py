@@ -5,7 +5,6 @@ import glob
 import datetime
 import filecmp
 import shutil
-from PIL import Image
 sys.path.append('../Common')
 import Common
 import WindowsIf
