@@ -1,9 +1,7 @@
 import os
 import sys
 import re
-import glob
 import datetime
-import filecmp
 import shutil
 sys.path.append('../Common')
 import Common
@@ -103,37 +101,6 @@ def ProcessSameFiles(files, groupidx):
 
 
 
-def Dummy():
-	path_src	= os.path.dirname(files[0])
-	path_dst	= path_src + '\\Same' + str(groupidx) + '\\'
-	Common.MakeFolderIfNotExist(path_dst)
-
-	newfiles	= []
-	print(' - fnames = ', end='')
-	for file in files:
-		fname	= os.path.basename(file)
-		print(fname, ', ', end='')
-		file_new	= Move1File(file, path_dst)
-		newfiles.append(file_new)
-
-	print(' ')
-	file_onlyone	= 'NONE'
-	for file_new in newfiles:
-		fname	= os.path.basename(file_new)
-		top,ext	= os.path.splitext(fname)
-		if (fname.startswith('Photo_') or fname.startswith('Movie_')) and re.match('.+\d{6}$', top):
-			file_onlyone	= file_new
-			break
-
-	if file_onlyone	== 'NONE':
-		return
-
-	for file_new in newfiles:
-		if file_new != file_onlyone:
-			Remove1File(file_new)
-
-
-
 def ProcessSameFileGroups(dict_same):
 	print('ProcessSameFileGroups, len(dict_same)=', len(dict_same))
 	groupidx	= 1
@@ -224,26 +191,11 @@ def MoveSingleFilesToParentFolder():
 
 
 
-def RemoveEmptyDirs():
-	path_src	= sys.argv[1]
-	files		= os.listdir(path_src)
-	for fname in files:
-		file	= path_src + '\\' + fname
-		if os.path.isdir(file):
-			pics	= os.listdir(file)
-			if len(pics) == 0:
-				os.rmdir(file)
-				print('[Remove Empty Dir] ' + file)
-
-
-
 def DupPhotoCheck():
 	SetWorkDir()
 	dict_simi = CheckSimilarFiles()
 	dict_same = CheckSameFiles(dict_simi)
 	ProcessSameFileGroups(dict_same)
-	MoveSingleFilesToParentFolder()
-	RemoveEmptyDirs()
 	print(' - End(DupPhotoCheck)')
 #	input('何かキーを押してください')
 
