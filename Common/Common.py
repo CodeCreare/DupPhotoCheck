@@ -8,7 +8,6 @@ import traceback
 import pathlib
 from pytz import timezone
 import datetime
-
 print('imported Common.py')
 
 
@@ -59,14 +58,16 @@ def MakeFolderIfNotExist(folder):
 
 s_print_on = False
 def LogSetPrint(print_on):
+	global s_print_on
 	s_print_on = print_on
 
 
 
 s_logs = []
-def Log(str, print_on=False):
+def Log(str):
+	global s_print_on
 	s_logs.append(str)
-	if print_on:
+	if s_print_on:
 		print(str)
 
 
@@ -176,6 +177,8 @@ def ConvDt2Ut(dt):
 
 
 def ConvMin2Time(min):
+	if min < 0 or 59 < min:
+		return '-'
 	m		= min % 60
 	h		= int(min / 60)
 	dt		= datetime.datetime(2021, 1, 1, h, m)
@@ -215,20 +218,34 @@ def OpenFiles(files):
 	for file in files:
 		if re.match('.+xlsx*', file):
 			OpenWithExcel(file)
-		else:
+		elif re.match('http', file):
+			OpenWithChrome(file)
+		elif file != '' and file != '-':
 			subprocess.run('explorer {}'.format(file))
 
 
 
+def OpenWithChrome(file):
+	exes = [
+		r'C:\Program Files\Google\Chrome\Application\chrome.exe',
+	]
+	for exe in exes:
+		if os.path.exists(exe):
+			str_exe	= exe + ' "' + file + '"'
+#			print('str_exe=', str_exe)
+			subprocess.Popen(str_exe)
+
+
+
 def OpenWithExcel(file):
-	excels = [
+	exes = [
 		r'C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE',
 		r'C:\Program Files (x86)\Microsoft Office\Office14\EXCEL.EXE',
 	]
 	file	= file.replace('/', '\\')
-	for excel in excels:
-		if os.path.exists(excel):
-			str_exe	= excel + ' "' + file + '"'
+	for exe in exes:
+		if os.path.exists(exe):
+			str_exe	= exe + ' "' + file + '"'
 #			print('str_exe=', str_exe)
 			subprocess.Popen(str_exe)
 
@@ -253,6 +270,14 @@ def TrimLines(lines):
 			if not re.match('^\s*\Z', line):
 				lines_new.append(line)
 	return lines_new
+
+
+
+def StrIfNotEmpty(str, stradd):
+	if str == '':
+		return str
+	else:
+		return str + stradd;
 
 
 
